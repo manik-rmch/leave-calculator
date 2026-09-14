@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Govt_Leave_Calculator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: SolaimanLipi, Kalpurush, Arial, sans-serif; background-color: rgb(244, 247, 246); padding: 20px; color: rgb(51, 51, 51); }
+
+        .calculator-card { max-width: 650px; margin: 0px auto; background: rgb(255, 255, 255); padding: 25px; border-radius: 12px; box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 15px; }
+
+        /* হোম বাটন স্টাইল */
+        .home-btn-container { display: flex; justify-content: flex-start; margin-bottom: 15px; }
+        .btn-home { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 18px; background-color: #e8eeeff3; color: #2c3e50; text-decoration: none; font-weight: bold; font-size: 16px; border-radius: 14px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); transition: 0.2s ease; }
+        .btn-home:hover { background-color: #dbe4e8; transform: translateY(-1px); }
+        .btn-home svg { width: 22px; height: 22px; fill: #2c3e50; }
+
+        .author-info { text-align: center; background-color: rgb(235, 245, 251); border: 1px dashed rgb(41, 128, 185); border-radius: 8px; padding: 10px; margin-bottom: 20px; font-size: 14px; color: rgb(44, 62, 80); line-height: 1.6; }
+        .author-info strong { color: rgb(26, 82, 118); font-size: 15px; }
+
+        h2 { text-align: center; color: rgb(26, 82, 118); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border: 1px solid rgb(204, 204, 204); border-radius: 6px; box-sizing: border-box; font-size: 15px; }
+
+        /* কাস্টম তারিখ ফিল্ড */
+        .date-input-wrapper { position: relative; }
+        .date-input-wrapper input[type="text"] { background-color: #fff; cursor: pointer; }
+        .date-input-wrapper input[type="date"] { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+        .btn-calc { width: 100%; padding: 12px; background-color: rgb(39, 174, 96); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-calc:hover { background-color: rgb(33, 145, 80); }
+
+        .result-box { margin-top: 25px; display: none; border-top: 2px dashed rgb(187, 187, 187); padding-top: 15px; }
+        .result-table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: rgb(255, 255, 255); }
+        .result-table th, .result-table td { border: 1px solid rgb(220, 221, 225); padding: 10px 14px; text-align: left; }
+        .section-header { color: rgb(44, 62, 80); font-weight: bold; font-size: 16px; background-color: rgb(229, 232, 232) !important; }
+        
+        /* অবশিষ্ট জমা অংশ হাইলাইট স্টাইল */
+        .highlight-row { font-weight: bold; color: rgb(20, 90, 50); background-color: rgb(212, 239, 223) !important; }
+
+        @media print {
+            .home-btn-container, .btn-calc { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+
+    <div class="home-btn-container">
+        <a href="https://manik-rmch.github.io/dashboard/" class="btn-home">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>হোম</span>
+        </a>
+    </div>
+
+    <div class="author-info">
+        <strong>প্রস্তুতকারক:</strong> মোঃ মানিক<br>
+        গাড়ি চালক, রাজশাহী মেডিকেল কলেজ হাসপাতাল, রাজশাহী।<br>
+        <strong>মোবাইল:</strong> ০১৭২৯-৮১৫২৯১
+    </div>
+
+    <h2>সরকারি কর্মচারীদের ছুটির হিসাব ক্যালকুলেটর</h2>
+    
+    <div class="form-group">
+        <label for="joinDate">চাকরিতে যোগদানের তারিখ:</label>
+        <div class="date-input-wrapper">
+            <input type="text" id="joinDateText" placeholder="dd/mm/yyyy" readonly>
+            <input type="date" id="joinDate" onchange="formatDateDisplay('joinDate', 'joinDateText')">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="calcDate">হিসাবের তারিখ পর্যন্ত:</label>
+        <div class="date-input-wrapper">
+            <input type="text" id="calcDateText" placeholder="dd/mm/yyyy" readonly>
+            <input type="date" id="calcDate" onchange="formatDateDisplay('calcDate', 'calcDateText')">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="availedFull">পূর্বে ভোগকৃত পূর্ণ গড় বেতনে ছুটি (দিন):</label>
+        <input type="text" id="availedFull" inputmode="numeric" pattern="[0-9]*" placeholder="যেমন: ১০" value="০" oninput="convertToBanglaInput(this)">
+    </div>
+
+    <div class="form-group">
+        <label for="availedHalf">পূর্বে ভোগকৃত অর্ধ গড় বেতনে ছুটি (দিন):</label>
+        <input type="text" id="availedHalf" inputmode="numeric" pattern="[0-9]*" placeholder="যেমন: ০" value="০" oninput="convertToBanglaInput(this)">
+    </div>
+
+    <button class="btn-calc" onclick="calculateLeave()">ছুটির হিসাব করুন</button>
+
+    <div class="result-box" id="resultBox">
+        <h3 style="text-align:center; color:#2c3e50; margin-bottom:15px;">ছুটির হিসাব বিবরণী</h3>
+        <table class="result-table">
+            <tbody>
+                <tr class="section-header">
+                    <th colspan="2">চাকরিকাল ও অর্জিত ছুটির হিসাব (বিধিমালা ১৯৫৯)</th>
+                </tr>
+                <tr>
+                    <td>মোট চাকরি কাল:</td>
+                    <td id="resTotalService">০ বছর ০ মাস ০ দিন</td>
+                </tr>
+                <tr>
+                    <td>মোট দিন:</td>
+                    <td id="resTotalDays">০ দিন</td>
+                </tr>
+                <tr>
+                    <td>অর্জিত ছুটি (পূর্ণ গড় বেতনে - ১১ দিনে ১ দিন):</td>
+                    <td id="resFullEarned">০ দিন</td>
+                </tr>
+                <tr>
+                    <td>অর্জিত ছুটি (অর্ধ গড় বেতনে - ১২ দিনে ১ দিন):</td>
+                    <td id="resHalfEarned">০ দিন</td>
+                </tr>
+                <tr class="section-header">
+                    <th colspan="2">অবশিষ্ট জমার হিসাব</th>
+                </tr>
+                <tr class="highlight-row">
+                    <td>অবশিষ্ট পূর্ণ গড় বেতনের ছুটি:</td>
+                    <td id="resNetFull">০ দিন</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>অবশিষ্ট অর্ধ গড় বেতনের ছুটি:</td>
+                    <td id="resNetHalf">০ দিন</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ইংরেজি সংখ্যাকে বাংলায় রূপান্তর
+    function toBanglaNum(num) {
+        const banglaDigits = {'0':'০', '1':'১', '2':'২', '3':'৩', '4':'৪', '5':'৫', '6':'৬', '7':'৭', '8':'৮', '9':'৯'};
+        return num.toString().replace(/\d/g, d => banglaDigits[d]);
+    }
+
+    // বাংলা সংখ্যাকে ইংরেজিতে রূপান্তর
+    function toEnglishNum(str) {
+        const banglaDigits = {'০':'0', '১':'1', '২':'2', '৩':'3', '৪':'4', '৫':'5', '৬':'6', '৭':'7', '৮':'8', '৯':'9'};
+        return str.toString().replace(/[০-৯]/g, d => banglaDigits[d]);
+    }
+
+    // ইনপুট টাইপ করার সাথে সাথে সংখ্যা বাংলা করে দেওয়া
+    function convertToBanglaInput(element) {
+        let val = element.value;
+        element.value = toBanglaNum(val);
+    }
+
+    // তারিখ নির্বাচন করলে dd/mm/yyyy ফরম্যাটে বাংলা সংখ্যায় দেখাবে
+    function formatDateDisplay(inputId, textId) {
+        let val = document.getElementById(inputId).value;
+        if (val) {
+            let parts = val.split('-');
+            let formatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            document.getElementById(textId).value = toBanglaNum(formatted);
+        }
+    }
+
+    function calculateLeave() {
+        let joinStr = document.getElementById('joinDate').value;
+        let calcStr = document.getElementById('calcDate').value;
+        
+        let availedFullStr = toEnglishNum(document.getElementById('availedFull').value);
+        let availedHalfStr = toEnglishNum(document.getElementById('availedHalf').value);
+
+        let availedFull = parseFloat(availedFullStr) || 0;
+        let availedHalf = parseFloat(availedHalfStr) || 0;
+
+        if (!joinStr || !calcStr) {
+            alert('অনুগ্রহ করে দুটি তারিখই সঠিকভাবে নির্বাচন করুন।');
+            return;
+        }
+
+        let d1 = new Date(joinStr);
+        let d2 = new Date(calcStr);
+
+        if (d2 < d1) {
+            alert('হিসাবের তারিখ যোগদানের তারিখের চেয়ে পরবর্তী হতে হবে।');
+            return;
+        }
+
+        let years = d2.getFullYear() - d1.getFullYear();
+        let months = d2.getMonth() - d1.getMonth();
+        let days = d2.getDate() - d1.getDate();
+
+        if (days < 0) {
+            months--;
+            let prevMonthDays = new Date(d2.getFullYear(), d2.getMonth(), 0).getDate();
+            days += prevMonthDays;
+        }
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+
+        let totalDaysInService = Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
+        
+        let fullEarned = Math.floor(totalDaysInService / 11);
+        let halfEarned = Math.floor(totalDaysInService / 12);
+
+        let netFull = fullEarned - availedFull;
+        let netHalf = halfEarned - availedHalf;
+
+        document.getElementById('resTotalService').innerText = `${toBanglaNum(years)} বছর ${toBanglaNum(months)} মাস ${toBanglaNum(days)} দিন`;
+        document.getElementById('resTotalDays').innerText = `${toBanglaNum(totalDaysInService)} দিন`;
+        document.getElementById('resFullEarned').innerText = `${toBanglaNum(fullEarned)} দিন`;
+        document.getElementById('resHalfEarned').innerText = `${toBanglaNum(halfEarned)} দিন`;
+
+        document.getElementById('resNetFull').innerText = `${toBanglaNum(netFull > 0 ? netFull : 0)} দিন`;
+        document.getElementById('resNetHalf').innerText = `${toBanglaNum(netHalf > 0 ? netHalf : 0)} দিন`;
+
+        document.getElementById('resultBox').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
