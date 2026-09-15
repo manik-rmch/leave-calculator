@@ -60,28 +60,7 @@
             outline: none;
             transition: 0.3s;
             background-color: #fff;
-        }
-
-        /* ক্যালেন্ডার ইনপুট ফিক্স */
-        .date-picker-container {
-            position: relative;
-            width: 100%;
-        }
-
-        .native-date-picker {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
             cursor: pointer;
-            z-index: 5;
-        }
-
-        .date-display-input {
-            width: 100%;
-            pointer-events: none; /* মাউস ক্লিক যেন ভেতরের ক্যালেন্ডারে যায় */
         }
 
         input[type="text"]:focus, input[type="date"]:focus {
@@ -205,18 +184,20 @@
             <div class="form-panel">
                 <div class="input-group">
                     <label>চাকরিতে যোগদানের তারিখ:</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="startDateDisplay" class="date-display-input" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" readonly>
-                        <input type="date" id="startDate" class="native-date-picker" onchange="handleDateChange('startDate', 'startDateDisplay')">
-                    </div>
+                    <input type="text" id="startDateInput" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" 
+                           onfocus="activateDatePicker(this)" 
+                           onblur="formatToBanglaDate(this, 'startDateVal')" 
+                           onchange="formatToBanglaDate(this, 'startDateVal')">
+                    <input type="hidden" id="startDateVal">
                 </div>
 
                 <div class="input-group">
                     <label>হিসাবের শেষ তারিখ:</label>
-                    <div class="date-picker-container">
-                        <input type="text" id="endDateDisplay" class="date-display-input" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" readonly>
-                        <input type="date" id="endDate" class="native-date-picker" onchange="handleDateChange('endDate', 'endDateDisplay')">
-                    </div>
+                    <input type="text" id="endDateInput" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" 
+                           onfocus="activateDatePicker(this)" 
+                           onblur="formatToBanglaDate(this, 'endDateVal')" 
+                           onchange="formatToBanglaDate(this, 'endDateVal')">
+                    <input type="hidden" id="endDateVal">
                 </div>
 
                 <div class="input-group">
@@ -270,17 +251,32 @@
         return str.toString().replace(/[০-৯]/g, d => banglaDigits[d]);
     }
 
-    // ক্যালেন্ডারে তারিখ চয়ন করলে DD/MM/YYYY ফরম্যাটে বাংলা সংখ্যায় দেখানো
-    function handleDateChange(nativeInputId, displayInputId) {
-        const val = document.getElementById(nativeInputId).value;
-        if (!val) return;
-        
-        const parts = val.split('-');
-        const y = parts[0];
-        const m = parts[1];
-        const d = parts[2];
+    // মাউস ক্লিক বা ফোকাস করলে নেটিভ তারিখ ইনপুট চালু করা
+    function activateDatePicker(input) {
+        input.type = 'date';
+        if ('showPicker' in HTMLInputElement.prototype) {
+            try { input.showPicker(); } catch (e) {}
+        }
+    }
 
-        document.getElementById(displayInputId).value = `${toBanglaNum(d)}/${toBanglaNum(m)}/${toBanglaNum(y)}`;
+    // তারিখ বাছাই শেষ হলে DD/MM/YYYY ফরম্যাটে বাংলা সংখ্যা রূপান্তর করা
+    function formatToBanglaDate(input, hiddenId) {
+        const val = input.value;
+        
+        // যদি পূর্বে কোনো YYYY-MM-DD সিলেক্ট করা থাকে
+        if (val && val.includes('-')) {
+            document.getElementById(hiddenId).value = val; // হিডেন ইনপুটে সংরক্ষণ (YYYY-MM-DD)
+            
+            const parts = val.split('-');
+            const y = parts[0];
+            const m = parts[1];
+            const d = parts[2];
+
+            input.type = 'text'; // ইনপুট মোড টেক্সটে ফেরত আনা
+            input.value = `${toBanglaNum(d)}/${toBanglaNum(m)}/${toBanglaNum(y)}`;
+        } else if (!val) {
+            input.type = 'text';
+        }
     }
 
     // ইনপুটে টাইপ করার সাথে সাথে বাংলা ডিজিটে দেখানোর ফাংশন
@@ -298,8 +294,8 @@
     }
 
     function calculateLeave() {
-        const startInput = document.getElementById('startDate').value;
-        const endInput = document.getElementById('endDate').value;
+        const startInput = document.getElementById('startDateVal').value;
+        const endInput = document.getElementById('endDateVal').value;
         const enjoyedFull = parseInt(document.getElementById('enjoyedFullPay').value) || 0;
         const enjoyedHalf = parseInt(document.getElementById('enjoyedHalfPay').value) || 0;
 
