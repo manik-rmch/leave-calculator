@@ -378,3 +378,273 @@
 
 </body>
 </html>
+        .result-card {
+            background: #fdfefe;
+            border: 1px solid #e0e0e0;
+            border-left: 6px solid #d35400;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            display: none;
+        }
+        .result-card h3 {
+            color: #a04000;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        .result-item {
+            font-size: 15px;
+            margin-bottom: 12px;
+            color: #34495e;
+            line-height: 1.5;
+        }
+        .result-item strong {
+            color: #1a252f;
+        }
+        .section-divider {
+            font-weight: bold;
+            color: #d35400;
+            margin: 15px 0 10px 0;
+            border-top: 1px dashed #ccc;
+            padding-top: 10px;
+            font-size: 16px;
+        }
+
+        /* প্রস্তুতকারক সেকশন স্টাইল */
+        .author-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f4f8fb;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .author-title {
+            color: #0b5345;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .author-name {
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        .author-details {
+            color: #34495e;
+            font-size: 15px;
+        }
+        .author-mobile {
+            color: #0b5345;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 4px;
+        }
+
+        .btn-home {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #008cba;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .btn-home:hover { text-decoration: underline; }
+
+        @media (min-width: 768px) {
+            .header-section { grid-column: span 2; }
+            .calc-grid {
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+            .full-width-footer { grid-column: span 2; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-card">
+        <div class="header-section">
+            <h1>অর্জিত ছুটি ক্যালকুলেটর</h1>
+            <p class="subtitle">সরকারি কর্মচারী ছুটি বিধিমালা, ১৯৫৯ অনুযায়ী</p>
+        </div>
+
+        <div class="calc-grid">
+            <!-- বাম পাশ: ইনপুট ফরম -->
+            <div class="form-panel">
+                <div class="input-group">
+                    <label>চাকরিতে যোগদানের তারিখ:</label>
+                    <div class="date-picker-container">
+                        <input type="text" id="startDateDisplay" class="date-display-input" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" readonly>
+                        <input type="date" id="startDate" class="native-date-picker" onchange="handleDateChange('startDate', 'startDateDisplay')">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>হিসাবের শেষ তারিখ:</label>
+                    <div class="date-picker-container">
+                        <input type="text" id="endDateDisplay" class="date-display-input" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" readonly>
+                        <input type="date" id="endDate" class="native-date-picker" onchange="handleDateChange('endDate', 'endDateDisplay')">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="enjoyedFullPayDisplay">পূর্বে ভোগকৃত পূর্ণ গড় বেতনে ছুটি (দিন):</label>
+                    <input type="text" id="enjoyedFullPayDisplay" inputmode="numeric" pattern="[0-9]*" value="০" onfocus="this.select()" oninput="formatBanglaInput(this, 'enjoyedFullPay')">
+                    <input type="hidden" id="enjoyedFullPay" value="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="enjoyedHalfPayDisplay">পূর্বে ভোগকৃত অর্ধ গড় বেতনে ছুটি (দিন):</label>
+                    <input type="text" id="enjoyedHalfPayDisplay" inputmode="numeric" pattern="[0-9]*" value="০" onfocus="this.select()" oninput="formatBanglaInput(this, 'enjoyedHalfPay')">
+                    <input type="hidden" id="enjoyedHalfPay" value="0">
+                </div>
+
+                <button class="btn-submit" onclick="calculateLeave()">ছুটি হিসাব করুন</button>
+            </div>
+
+            <!-- ডান পাশ: ফলাফলের প্যানেল -->
+            <div class="result-panel">
+                <div class="result-card" id="resultBox">
+                    <h3>📊 ছুটির হিসাবের ফলাফল</h3>
+                    <div id="outputContent"></div>
+                </div>
+            </div>
+
+            <!-- প্রস্তুতকারক ও ফুটার সেকশন -->
+            <div class="full-width-footer">
+                <div class="author-box">
+                    <span class="author-title">প্রস্তুতকারক:</span> <span class="author-name">মোঃ মানিক</span><br>
+                    <div class="author-details">গাড়ি চালক, রাজশাহী মেডিকেল কলেজ হাসপাতাল, রাজশাহী।</div>
+                    <div class="author-mobile">মোবাইল: ০১৭২৯-৮১৫২৯১</div>
+                </div>
+
+                <a href="https://manik-rmch.github.io/dashboard/" class="btn-home">⬅ ড্যাশবোর্ডে ফিরে যান</a>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // সংখ্যাকে বাংলায় রূপান্তর
+    function toBanglaNum(num) {
+        if (num === null || num === undefined || num === '') return '০';
+        const banglaDigits = {'0':'০', '1':'১', '2':'২', '3':'৩', '4':'৪', '5':'৫', '6':'৬', '7':'৭', '8':'৮', '9':'৯'};
+        return num.toString().replace(/\d/g, d => banglaDigits[d]);
+    }
+
+    // বাংলা সংখ্যাকে ইংরেজিতে রূপান্তর
+    function toEnglishNum(str) {
+        if (!str) return '0';
+        const banglaDigits = {'০':'0', '১':'1', '২':'2', '৩':'3', '৪':'4', '৫':'5', '৬':'6', '৭':'7', '৮':'8', '৯':'9'};
+        return str.toString().replace(/[০-৯]/g, d => banglaDigits[d]);
+    }
+
+    // ক্যালেন্ডারে তারিখ চয়ন করলে DD/MM/YYYY ফরম্যাটে বাংলা সংখ্যায় দেখানো
+    function handleDateChange(nativeInputId, displayInputId) {
+        const val = document.getElementById(nativeInputId).value;
+        if (!val) return;
+        
+        const parts = val.split('-');
+        const y = parts[0];
+        const m = parts[1];
+        const d = parts[2];
+
+        document.getElementById(displayInputId).value = `${toBanglaNum(d)}/${toBanglaNum(m)}/${toBanglaNum(y)}`;
+    }
+
+    // ইনপুটে টাইপ করার সাথে সাথে বাংলা ডিজিটে দেখানোর ফাংশন
+    function formatBanglaInput(inputElem, hiddenId) {
+        let rawVal = inputElem.value;
+        let engVal = toEnglishNum(rawVal).replace(/[^0-9]/g, '');
+        
+        if (engVal === '') {
+            document.getElementById(hiddenId).value = '0';
+            inputElem.value = '০';
+        } else {
+            document.getElementById(hiddenId).value = engVal;
+            inputElem.value = toBanglaNum(parseInt(engVal, 10));
+        }
+    }
+
+    function calculateLeave() {
+        const startInput = document.getElementById('startDate').value;
+        const endInput = document.getElementById('endDate').value;
+        const enjoyedFull = parseInt(document.getElementById('enjoyedFullPay').value) || 0;
+        const enjoyedHalf = parseInt(document.getElementById('enjoyedHalfPay').value) || 0;
+
+        if (!startInput || !endInput) {
+            alert('অনুগ্রহ করে দুটি তারিখই সঠিকভাবে নির্বাচন করুন।');
+            return;
+        }
+
+        const start = new Date(startInput);
+        const end = new Date(endInput);
+
+        if (start > end) {
+            alert('যোগদানের তারিখ হিসাবের শেষ তারিখের চেয়ে বড় হতে পারে না।');
+            return;
+        }
+
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+
+        let years = end.getFullYear() - start.getFullYear();
+        let months = end.getMonth() - start.getMonth();
+        let days = end.getDate() - start.getDate();
+
+        if (days < 0) {
+            months -= 1;
+            const prevMonthLastDay = new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+            days += prevMonthLastDay;
+        }
+
+        if (months < 0) {
+            years -= 1;
+            months += 12;
+        }
+
+        const totalEarnedFullPay = Math.floor(diffDays / 11);
+        const totalEarnedHalfPay = Math.floor(diffDays / 12);
+
+        const netFullPay = totalEarnedFullPay - enjoyedFull;
+        const netHalfPay = totalEarnedHalfPay - enjoyedHalf;
+
+        const outputHtml = `
+            <div class="result-item">
+                <strong>মোট চাকরিকাল:</strong> ${toBanglaNum(years)} বছর ${toBanglaNum(months)} মাস ${toBanglaNum(days)} দিন<br>
+                (${toBanglaNum(diffDays)} দিন)
+            </div>
+
+            <div class="result-item">
+                <strong>পূর্ণ গড় বেতনে অর্জিত ছুটি:</strong><br>
+                ${toBanglaNum(totalEarnedFullPay)} দিন (১১ দিনে ১ দিন)
+            </div>
+
+            <div class="result-item">
+                <strong>অর্ধ-গড় বেতনে অর্জিত ছুটি:</strong><br>
+                ${toBanglaNum(totalEarnedHalfPay)} দিন (১২ দিনে ১ দিন)
+            </div>
+
+            <div class="section-divider">অবশিষ্ট জমার হিসাব</div>
+
+            <div class="result-item">
+                <strong>পূর্ণ গড় বেতনে অবশিষ্ট ছুটি:</strong><br>
+                <span style="color: #27ae60; font-weight: bold;">${toBanglaNum(netFullPay > 0 ? netFullPay : 0)} দিন</span> 
+                (মোট অর্জন: ${toBanglaNum(totalEarnedFullPay)}, ভোগ: ${toBanglaNum(enjoyedFull)})
+            </div>
+
+            <div class="result-item">
+                <strong>অর্ধ-গড় বেতনে অবশিষ্ট ছুটি:</strong><br>
+                <span style="color: #d35400; font-weight: bold;">${toBanglaNum(netHalfPay > 0 ? netHalfPay : 0)} দিন</span> 
+                (মোট অর্জন: ${toBanglaNum(totalEarnedHalfPay)}, ভোগ: ${toBanglaNum(enjoyedHalf)})
+            </div>
+        `;
+
+        document.getElementById('outputContent').innerHTML = outputHtml;
+        document.getElementById('resultBox').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
