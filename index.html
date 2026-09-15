@@ -50,13 +50,8 @@
             color: #2c3e50;
             font-size: 14px;
         }
-        
-        .date-picker-wrapper {
-            position: relative;
-            width: 100%;
-        }
 
-        input[type="text"] {
+        input[type="text"], input[type="date"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #cccccc;
@@ -65,11 +60,15 @@
             outline: none;
             transition: 0.3s;
             background-color: #fff;
-            cursor: pointer;
         }
 
-        /* হিডেন নেটিভ ক্যালেন্ডার ইনপুট */
-        .native-date-input {
+        /* ক্যালেন্ডার ইনপুট ফিক্স */
+        .date-picker-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .native-date-picker {
             position: absolute;
             top: 0;
             left: 0;
@@ -77,10 +76,15 @@
             height: 100%;
             opacity: 0;
             cursor: pointer;
-            z-index: 2;
+            z-index: 5;
         }
 
-        input[type="text"]:focus {
+        .date-display-input {
+            width: 100%;
+            pointer-events: none; /* মাউস ক্লিক যেন ভেতরের ক্যালেন্ডারে যায় */
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus {
             border-color: #d35400;
             box-shadow: 0 0 5px rgba(211, 84, 0, 0.3);
         }
@@ -201,17 +205,17 @@
             <div class="form-panel">
                 <div class="input-group">
                     <label>চাকরিতে যোগদানের তারিখ:</label>
-                    <div class="date-picker-wrapper">
-                        <input type="text" id="startDateDisplay" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" onclick="openCalendar('startDate')">
-                        <input type="date" id="startDate" class="native-date-input" onchange="handleDateChange('startDate', 'startDateDisplay')">
+                    <div class="date-picker-container">
+                        <input type="text" id="startDateDisplay" class="date-display-input" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" readonly>
+                        <input type="date" id="startDate" class="native-date-picker" onchange="handleDateChange('startDate', 'startDateDisplay')">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label>হিসাবের শেষ তারিখ:</label>
-                    <div class="date-picker-wrapper">
-                        <input type="text" id="endDateDisplay" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" onclick="openCalendar('endDate')">
-                        <input type="date" id="endDate" class="native-date-input" onchange="handleDateChange('endDate', 'endDateDisplay')">
+                    <div class="date-picker-container">
+                        <input type="text" id="endDateDisplay" class="date-display-input" placeholder="দিন/মাস/বছর (DD/MM/YYYY)" readonly>
+                        <input type="date" id="endDate" class="native-date-picker" onchange="handleDateChange('endDate', 'endDateDisplay')">
                     </div>
                 </div>
 
@@ -266,21 +270,7 @@
         return str.toString().replace(/[০-৯]/g, d => banglaDigits[d]);
     }
 
-    // ডেস্কটপ/ল্যাপটপ বা মোবাইলে ইনপুট বক্সে মাউস দিয়ে ক্লিক করলে ক্যালেন্ডার পপ-আপ খোলা
-    function openCalendar(nativeInputId) {
-        const dateInput = document.getElementById(nativeInputId);
-        if ('showPicker' in HTMLInputElement.prototype) {
-            try {
-                dateInput.showPicker();
-            } catch (error) {
-                dateInput.focus();
-            }
-        } else {
-            dateInput.focus();
-        }
-    }
-
-    // ক্যালেন্ডারে তারিখ চয়ন করলে DD/MM/YYYY ফরম্যাটে বাংলা সংখ্যায় দেখানো
+    // ক্যালেন্ডারে তারিখ চয়ন করলে DD/MM/YYYY ফরম্যাটে বাংলা সংখ্যায় দেখানো
     function handleDateChange(nativeInputId, displayInputId) {
         const val = document.getElementById(nativeInputId).value;
         if (!val) return;
