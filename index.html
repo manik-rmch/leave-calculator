@@ -120,6 +120,7 @@ function ymd(a,b){var y=b.y-a.y,m=b.m-a.m,d=b.d-a.d;if(d<0){m--;d+=b.m?dim(b.y,b
 function onDate(id,fn){var el=$(id);el.addEventListener("input",function(){maskEl(el,[2,2,4],["/","/"]);if(fn)fn()})}
 function boxClick(){document.querySelectorAll(".f").forEach(function(b){b.addEventListener("click",function(e){var i=b.querySelector("input");if(i&&e.target!==i&&e.target.tagName!=="BUTTON")i.focus()})})}
 
+function dd(n){var y=Math.floor(n/360),m=Math.floor(n%360/30),d=n%30,p=[];if(y)p.push(bn(y)+" বছর");if(m)p.push(bn(m)+" মাস");if(d)p.push(bn(d)+" দিন");return bn(n)+" দিন"+(n>=30?" ("+p.join(" ")+")":"")}
 function row(l,v,c){return'<div class="result-item"><strong>'+l+':</strong> <span'+(c?' class="'+c+'"':"")+'>'+v+'</span></div>'}
 function run(){var a=D($("sd").value),b=D($("ed").value),box=$("resultBox"),m=$("msg");box.classList.remove("show");m.textContent="";
 if(a===false||b===false){m.textContent=BADD;return}if(!a||!b)return;
@@ -127,15 +128,15 @@ var n=days(a,b)+1;if(n<1){m.textContent="শেষ তারিখ যোগদ�
 var nx=new Date(Date.UTC(b.y,b.m,b.d+1)),r=ymd(a,{y:nx.getUTCFullYear(),m:nx.getUTCMonth(),d:nx.getUTCDate()}),
 e1=+en($("f1").value||"0"),e2=+en($("f2").value||"0"),F=Math.floor(n/11),H=Math.floor(n/12),rf=Math.max(0,F-e1),rh=Math.max(0,H-e2),keep=Math.min(rf,120),ex=rf-keep,h="";
 h+=row("মোট কর্তব্যকাল",bn(r.y)+" বছর "+bn(r.m)+" মাস "+bn(r.d)+" দিন ("+grp(n)+" দিন)");
-h+='<div class="section-divider">পূর্ণ গড় বেতনে ছুটি (১১ দিনে ১ দিন)</div>'+row("অর্জিত ছুটি",bn(F)+" দিন")+row("পূর্বে ভোগকৃত",bn(e1)+" দিন")+row("অবশিষ্ট ছুটি",bn(rf)+" দিন");
+h+='<div class="section-divider">পূর্ণ গড় বেতনে ছুটি (১১ দিনে ১ দিন)</div>'+row("অর্জিত ছুটি",dd(F))+row("পূর্বে ভোগকৃত",dd(e1))+row("অবশিষ্ট ছুটি",dd(rf));
 if(e1>F)h+=row("সতর্কতা","ভোগকৃত ছুটি অর্জিত ছুটির চেয়ে বেশি, অবশিষ্ট শূন্য ধরা হয়েছে","warn");
-h+=row("জমা (সর্বোচ্চ ৪ মাস = ১২০ দিন)",bn(keep)+" দিন");if(ex>0)h+=row("চার মাসের অতিরিক্ত (ছুটি হিসাবের পৃথক আইটেমে জমা)",bn(ex)+" দিন");
-h+='<div class="section-divider">অর্ধ গড় বেতনে ছুটি (১২ দিনে ১ দিন)</div>'+row("অর্জিত ছুটি",bn(H)+" দিন")+row("পূর্বে ভোগকৃত",bn(e2)+" দিন")+row("অবশিষ্ট ছুটি (জমার সীমা নেই)",bn(rh)+" দিন");
+h+=row("জমা (সর্বোচ্চ ৪ মাস = ১২০ দিন)",dd(keep));if(ex>0)h+=row("চার মাসের অতিরিক্ত (ছুটি হিসাবের পৃথক আইটেমে জমা)",dd(ex));
+h+='<div class="section-divider">অর্ধ গড় বেতনে ছুটি (১২ দিনে ১ দিন)</div>'+row("অর্জিত ছুটি",dd(H))+row("পূর্বে ভোগকৃত",dd(e2))+row("অবশিষ্ট ছুটি (জমার সীমা নেই)",dd(rh));
 if(e2>H)h+=row("সতর্কতা","ভোগকৃত ছুটি অর্জিত ছুটির চেয়ে বেশি, অবশিষ্ট শূন্য ধরা হয়েছে","warn");
-$("outputContent").innerHTML=h;box.classList.add("show")}
+h+='<div class="hint">বন্ধনীর হিসাব ৩০ দিনে ১ মাস ও ১২ মাসে ১ বছর ধরে করা হয়েছে।</div>';$("outputContent").innerHTML=h;box.classList.add("show")}
 ["sd","ed"].forEach(function(i){onDate(i,run)});
 ["f1","f2"].forEach(function(i){$(i).addEventListener("input",function(){this.value=bn(en(this.value).replace(/\D/g,"").slice(0,5));run()})});
-setV($("ed"),dstr(today()));boxClick();run();
+boxClick();run();
 window.attachCal=function(){};
 (function(){
 if(!window.matchMedia||!matchMedia("(hover:hover) and (pointer:fine)").matches)return;
@@ -166,7 +167,7 @@ var w=pop.offsetWidth,h=pop.offsetHeight,l=Math.min(b.left+scrollX,scrollX+docum
 if(b.bottom+h+8>innerHeight&&b.top>h+8)tp=b.top+scrollY-h-4;
 pop.style.left=Math.max(8,l)+"px";pop.style.top=tp+"px"}
 window.attachCal=function(id,dy){var el=$(id);el._dy=dy||0;(el.closest(".f")||el).addEventListener("click",function(){open(el)});
-el.addEventListener("input",function(){if(cur===el){var s=D(el.value);if(s){vy=s.y;vm=s.m}render()}})}
+el.addEventListener("input",function(){if(cur===el){if(D(el.value)){close();return}render()}})}
 })();
 attachCal("sd");attachCal("ed");
 </script></body></html>
